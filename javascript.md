@@ -1047,3 +1047,245 @@ function iterate(obj){
 } 
 ```
 
+### 10. Set Map
+
+Set 是一个集合，其主要特点是存储唯一值的集合，不包括重复值。它的元素可以是任何类型的（基本类型或引用类型），但每个值在集合中只出现一次。
+
+特性：
+
+- 唯一性：Set 自动去重，相同的值只存储一次。
+- 无序：Set 没有索引，元素没有固定顺序（遍历时顺序可能基于插入顺序，但不保证）。
+- 可迭代：Set 支持 for...of 循环以及其他迭代协议。
+
+使用场景：去重，快速查找，集合运算
+
+Map 是一个键值对集合，允许使用任何类型的值（基本类型或引用类型）作为键，相比普通对象更灵活。
+
+- 特性：
+  - 键的灵活性：键可以是任意值，包括对象、函数、基本类型。
+  - 有序：键值对按插入顺序存储。
+  - 可迭代：支持 for...of 和其他迭代协议。
+  - 无默认键：不像对象会继承 Object.prototype 的属性。
+
+使用场景：键值对存储（需要非字符串键时，Map 优于对象），
+
+==序列化问题==
+
+- Set 和 Map 不能直接用 JSON.stringify 序列化。
+- 解决：转为数组或对象。
+
+```js
+const set = new Set([1, 2]);
+const arr = [...set]; // [1, 2]
+
+const map = new Map([['a', 1]]);
+const obj = Object.fromEntries(map)); // { a: 1 }
+```
+
+#### WeakSet
+
+WeakSet 是一个集合数据结构，类似于 Set，但只能存储对象引用，且这些引用是弱引用（weakly held）。这意味着，==如果对象没有其他强引用，垃圾回收机制可以随时回收这些对象，而 WeakSet 不会阻止回收==。
+
+核心特性：
+
+- 仅限对象：只能存储对象（如 {}、函数、DOM 节点等），不能存储基本类型（如数字、字符串）。
+- 弱引用：不阻止垃圾回收，对象可被回收。
+- 无序：没有固定顺序，遍历顺序依赖实现。
+- 不可迭代：不支持 for...of、keys()、values() 等迭代方法。
+- 无 size 属性：无法直接获取元素数量。
+
+使用场景
+
+- 跟踪对象：记录对象是否被处理过，而不影响其生命周期。
+
+  ```javascript
+  const processed = new WeakSet();
+  function process(obj) {
+    if (processed.has(obj)) return;
+    processed.add(obj);
+    // 处理 obj
+  }
+  ```
+
+- 防止内存泄漏：在事件监听或缓存中，确保对象可被回收。
+
+  ```javascript
+  const weakSet = new WeakSet();
+  const obj = {};
+  weakSet.add(obj);
+  // obj 可被回收，无需手动清理 weakSet
+  ```
+
+- 标记 DOM 节点：标记已处理的 DOM 元素。
+
+  ```javascript
+  const visited = new WeakSet();
+  function markNode(node) {
+    if (!visited.has(node)) {
+      visited.add(node);
+      // 处理 node
+    }
+  }
+  ```
+
+####  WeakMap
+
+WeakMap 是一个键值对集合，类似于 Map，但键必须是对象和 [Symbol 值](https://github.com/tc39/proposal-symbols-as-weakmap-keys)作为键名，且这些键是弱引用。与 WeakSetWeakMap不会阻止键对象的垃圾回收，适合用于存储与对象关联的数据而不干扰内存管理。
+
+- 核心特点：
+  - 键必须是对象：键只能是对象，值可以是任意类型。
+  - 弱引用：键是弱引用，可被垃圾回收。
+  - 无序：键值对顺序依赖插入，但不可靠。
+  - 不可迭代：不支持 for...of、keys() 等迭代方法。
+  - 无 size 属性：无法获取键值对数量。
+
+使用场景
+
+- 私有数据存储：将对象与私有数据关联，而不暴露数据。
+
+  ```javascript
+  const privateData = new WeakMap();
+  class MyClass {
+    constructor() {
+      privateData.set(this, { secret: 'hidden' });
+    }
+    getSecret() {
+      return privateData.get(this).secret;
+    }
+  }
+  const instance = new MyClass();
+  console.log(instance.getSecret()); // 'hidden'
+  ```
+
+- DOM 元素关联数据：存储与 DOM 元素相关的数据，元素移除时自动清理。
+
+  ```javascript
+  const weakMap = new WeakMap();
+  const button = document.querySelector('button');
+  weakMap.set(button, { clickCount: 0 });
+  button.addEventListener('click', () => {
+    const data = weakMap.get(button);
+    data.clickCount++;
+    console.log(data.clickCount);
+  });
+  // button 移除后，weakMap 自动清理
+  ```
+
+- 缓存计算结果：缓存基于对象的计算结果，对象回收时自动清除缓存。
+
+  ```javascript
+  const cache = new WeakMap();
+  function expensiveComputation(obj) {
+    if (cache.has(obj)) {
+      return cache.get(obj);
+    }
+    const result = /* 昂贵计算 */;
+    cache.set(obj, result);
+    return result;
+  }
+  ```
+
+WeakSet 和 WeakMap 的限制
+
+- 不可迭代：无法遍历内容，因为弱引用可能随时被垃圾回收，迭代结果不可靠。
+- 无 size 属性：无法知道当前存储了多少元素。
+- 无 clear() 方法：无法一次性清空。
+- 键/值限制：
+  - WeakSet：只能存储对象。
+  - WeakMap：键只能是对象。
+- 调试困难：由于弱引用和垃圾回收的不可预测性，检查内容较为困难。
+
+高级用法与注意事项
+
+6.1 内存管理
+
+- WeakSet 和 WeakMap 是内存友好的数据结构，适合在长期运行的应用程序中（如 Node.js 服务器或复杂前端应用）管理对象引用。
+- 注意：不要依赖 WeakSet 或 WeakMap 的内容始终存在，因为垃圾回收可能随时移除对象。
+
+6.2 序列化问题
+
+- 无法直接序列化（如 JSON.stringify），因为不可迭代且内容可能动态变化。
+- 解决：手动转换为数组或对象（但需注意弱引用特性）。
+
+javascript
+
+```javascript
+const weakMap = new WeakMap();
+const key = {};
+weakMap.set(key, 'value');
+// 无法直接序列化，需手动处理
+```
+
+6.3 浏览器兼容性
+
+- WeakSet 和 WeakMap 在现代浏览器（IE11+）和 Node.js 中广泛支持。
+- 旧环境可能需要 polyfill 或替代方案。
+
+6.4 调试技巧
+
+- 由于不可迭代，调试时可通过 has() 检查特定对象。
+- 使用临时强引用保留对象，观察行为：
+
+javascript
+
+```javascript
+const weakMap = new WeakMap();
+const key = {};
+weakMap.set(key, 'test');
+console.log(weakMap.has(key)); // true
+```
+
+实际案例
+
+案例 1：WeakSet 标记已处理对象
+
+```javascript
+const processed = new WeakSet();
+function processItem(item) {
+  if (processed.has(item)) {
+    console.log('Already processed');
+    return;
+  }
+  processed.add(item);
+  console.log('Processing', item);
+}
+const obj = {};
+processItem(obj); // Processing {}
+processItem(obj); // Already processed
+obj = null; // obj 可被垃圾回收
+```
+
+案例 2：WeakMap 实现私有属性
+
+```javascript
+const privateData = new WeakMap();
+class Counter {
+  constructor() {
+    privateData.set(this, { count: 0 });
+  }
+  increment() {
+    const data = privateData.get(this);
+    data.count++;
+    return data.count;
+  }
+}
+const counter = new Counter();
+console.log(counter.increment()); // 1
+console.log(counter.increment()); // 2
+// 无法直接访问 privateData
+```
+
+案例 3：WeakMap 缓存 DOM 数据
+
+```javascript
+const elementData = new WeakMap();
+function trackElement(element) {
+  if (!elementData.has(element)) {
+    elementData.set(element, { metadata: `ID_${Math.random()}` });
+  }
+  return elementData.get(element);
+}
+const div = document.createElement('div');
+console.log(trackElement(div)); // { metadata: 'ID_xxx' }
+// div 移除后，elementData 自动清理
+```

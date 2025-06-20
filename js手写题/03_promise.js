@@ -159,3 +159,30 @@ MyPromise.race([
   new MyPromise((resolve) => setTimeout(() => resolve("First"), 1000)),
   new MyPromise((resolve) => setTimeout(() => resolve("Second"), 500)),
 ]).then((value) => console.log(value)); // 输出: Second
+
+const p = new Promise((resolve, reject) => {
+  console.log(0);
+  reject();
+  console.log(1);
+  resolve();
+  console.log(2);
+});
+p.then((res) => {
+  console.log(3);
+})
+  .then((res) => {
+    console.log(4);
+  })
+  .catch((res) => {
+    console.log(5);
+  })
+  .then((res) => {
+    console.log(6);
+  })
+  .catch((res) => {
+    console.log(7);
+  })
+  .then((res) => {
+    console.log(8);
+  });
+// 输出: 0 1 2 5 6 8

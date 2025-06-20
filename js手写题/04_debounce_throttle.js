@@ -1,3 +1,50 @@
+// 防抖函数
+// 原理：在事件触发后，延迟一段时间执行回调。如果在这段时间内事件再次触发，则重新计时。只有当指定时间内没有再次触发，回调才会执行。
+
+function debounce(fn, delay) {
+  let timer = null;
+
+  return function (...args) {
+    // 清除上一次的定时器
+    clearTimeout(timer);
+    // 设置新的定时器
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  };
+}
+
+// 使用示例
+function handleInput(e) {
+  console.log("输入值:", e.target.value);
+}
+
+const debouncedInput = debounce(handleInput, 300);
+document.querySelector("input").addEventListener("input", debouncedInput);
+
+// 节流函数
+// 原理：在事件触发时，限制回调函数的执行频率，确保在指定时间间隔内最多执行一次。
+function throttle(fn, interval) {
+  let lastTime = 0;
+
+  return function (...args) {
+    const now = Date.now();
+    // 如果距离上次执行时间超过了间隔时间，则执行
+    if (now - lastTime >= interval) {
+      fn.apply(this, args);
+      lastTime = now;
+    }
+  };
+}
+
+// 使用示例
+function handleScroll() {
+  console.log("滚动位置:", window.scrollY);
+}
+
+const throttledScroll = throttle(handleScroll, 200);
+window.addEventListener("scroll", throttledScroll);
+
 /**
  * 防抖函数：触发事件后，在指定时间内只执行最后一次操作
  * @param {Function} func - 要防抖的函数

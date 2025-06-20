@@ -1,6 +1,6 @@
 function curry(fn) {
   const arity = fn.length; // 获取函数的参数数量
-
+  console.log("arity:", arity);
   return function curried(...args) {
     if (args.length >= arity) {
       return fn.apply(this, args);
@@ -24,6 +24,7 @@ console.log(curriedAdd(1)(2)(3)); // 输出: 6
 console.log(curriedAdd(1, 2)(3)); // 输出: 6
 console.log(curriedAdd(1)(2, 3)); // 输出: 6
 console.log(curriedAdd(1, 2, 3)); // 输出: 6
+console.log(curriedAdd(1)(2)); // 输出: [Function: curried]，因为还需要一个参数
 
 // 参数复用
 const addFive = curriedAdd(5);
