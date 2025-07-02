@@ -65,7 +65,7 @@ Vue 2 的数组响应式有以下限制：
      - 使用变异方法：this.$set(arr, index, value) 或 arr.splice(index, 1, value)。
      - 替换整个数组：arr = [...arr, newItem]。
 
-   javascript
+   
 
    ```javascript
    // 不触发更新
@@ -409,19 +409,15 @@ Vue 3 引入了一些新组件和指令，增强了功能。
 
   - 将子节点渲染到 DOM 的任意位置（如模态框）。
 
-  javascript
-
   ```javascript
   <Teleport to="body">
     <div class="modal">Modal Content</div>
   </Teleport>
   ```
-
+  
 - Suspense：
 
   - 支持异步组件加载，显示 fallback 内容。
-
-  javascript
 
   ```javascript
   <Suspense>
@@ -529,13 +525,7 @@ Vue 3 的构建工具和生态系统全面升级。
 
 - Vue 3：新项目首选，但迁移需注意：
 
-  - 使用 
-
-    @vue
-
-    /compat
-
-     过渡（兼容模式）。
+  - 使用 @vue/compat过渡（兼容模式）。
 
   - 部分库（如 Vuex 需升级到 Pinia）。
 

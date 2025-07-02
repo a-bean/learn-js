@@ -1207,8 +1207,6 @@ WeakSet 和 WeakMap 的限制
 - 无法直接序列化（如 JSON.stringify），因为不可迭代且内容可能动态变化。
 - 解决：手动转换为数组或对象（但需注意弱引用特性）。
 
-javascript
-
 ```javascript
 const weakMap = new WeakMap();
 const key = {};
@@ -1225,8 +1223,6 @@ weakMap.set(key, 'value');
 
 - 由于不可迭代，调试时可通过 has() 检查特定对象。
 - 使用临时强引用保留对象，观察行为：
-
-javascript
 
 ```javascript
 const weakMap = new WeakMap();
